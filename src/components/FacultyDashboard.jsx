@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { API_BASE_URL } from '../api'
 import DashboardLayout from './DashboardLayout'
 
 const initialLoadForm = {
@@ -17,7 +18,7 @@ function FacultyDashboard({ user, onLogout }) {
     const fetchFacultyData = async () => {
       try {
         const token = localStorage.getItem('courseAllocationToken')
-        const response = await fetch('http://localhost:5000/api/dashboard/faculty', {
+        const response = await fetch(`${API_BASE_URL}/api/dashboard/faculty`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -58,7 +59,7 @@ function FacultyDashboard({ user, onLogout }) {
 
     try {
       const token = localStorage.getItem('courseAllocationToken')
-      const response = await fetch(`http://localhost:5000/api/courses/${loadForm.courseId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/courses/${loadForm.courseId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

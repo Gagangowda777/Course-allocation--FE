@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { API_BASE_URL } from '../api'
 
 const emptyCourseForm = {
   code: '',
@@ -21,7 +22,7 @@ function CoursePage({ user }) {
   const fetchCourses = async () => {
     try {
       const token = localStorage.getItem('courseAllocationToken')
-      const response = await fetch('http://localhost:5000/api/courses', {
+      const response = await fetch(`${API_BASE_URL}/api/courses`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -84,7 +85,7 @@ function CoursePage({ user }) {
       }
 
       const response = await fetch(
-        isEditing ? `http://localhost:5000/api/courses/${editingCourseId}` : 'http://localhost:5000/api/courses',
+        isEditing ? `${API_BASE_URL}/api/courses/${editingCourseId}` : `${API_BASE_URL}/api/courses`,
         request
       )
 
@@ -140,7 +141,7 @@ function CoursePage({ user }) {
 
     try {
       const token = localStorage.getItem('courseAllocationToken')
-      const response = await fetch(`http://localhost:5000/api/courses/${courseId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/courses/${courseId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,

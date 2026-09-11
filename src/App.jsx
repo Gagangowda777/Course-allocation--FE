@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import './App.css'
+import { API_BASE_URL } from './api'
 import LoginPage from './components/LoginPage'
 import RegisterPage from './components/RegisterPage'
 import AdminDashboard from './components/AdminDashboard'
@@ -61,7 +62,7 @@ function App() {
 
     const validateToken = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/me', {
+        const response = await fetch(`${API_BASE_URL}/api/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -110,7 +111,7 @@ function App() {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/login', {
+      const response = await fetch(`${API_BASE_URL}/api/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

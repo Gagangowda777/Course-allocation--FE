@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { API_BASE_URL } from '../api'
 import DashboardLayout from './DashboardLayout'
 
 const initialCourseForm = {
@@ -29,12 +30,12 @@ function AdminDashboard({ user, onLogout }) {
       try {
         const token = localStorage.getItem('courseAllocationToken')
         const [dashboardResponse, allocationsResponse] = await Promise.all([
-          fetch('http://localhost:5000/api/dashboard/admin', {
+          fetch(`${API_BASE_URL}/api/dashboard/admin`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }),
-          fetch('http://localhost:5000/api/allocations/all', {
+          fetch(`${API_BASE_URL}/api/allocations/all`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -67,7 +68,7 @@ function AdminDashboard({ user, onLogout }) {
   const handleApproval = async (id, action) => {
     try {
       const token = localStorage.getItem('courseAllocationToken')
-      const response = await fetch(`http://localhost:5000/api/allocations/${id}/${action}`, {
+      const response = await fetch(`${API_BASE_URL}/api/allocations/${id}/${action}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -104,7 +105,7 @@ function AdminDashboard({ user, onLogout }) {
 
     try {
       const token = localStorage.getItem('courseAllocationToken')
-      const response = await fetch('http://localhost:5000/api/courses', {
+      const response = await fetch(`${API_BASE_URL}/api/courses`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

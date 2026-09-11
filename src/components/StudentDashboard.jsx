@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { API_BASE_URL } from '../api'
 import DashboardLayout from './DashboardLayout'
 
 function StudentDashboard({ user, onLogout }) {
@@ -12,7 +13,7 @@ function StudentDashboard({ user, onLogout }) {
     const fetchStudentData = async () => {
       try {
         const token = localStorage.getItem('courseAllocationToken')
-        const response = await fetch('http://localhost:5000/api/dashboard/student', {
+        const response = await fetch(`${API_BASE_URL}/api/dashboard/student`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -45,7 +46,7 @@ function StudentDashboard({ user, onLogout }) {
 
     try {
       const token = localStorage.getItem('courseAllocationToken')
-      const response = await fetch('http://localhost:5000/api/allocations', {
+      const response = await fetch(`${API_BASE_URL}/api/allocations`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -63,7 +64,7 @@ function StudentDashboard({ user, onLogout }) {
         throw new Error(data.message || 'Failed to save preference.')
       }
 
-      const refreshed = await fetch('http://localhost:5000/api/dashboard/student', {
+      const refreshed = await fetch(`${API_BASE_URL}/api/dashboard/student`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
