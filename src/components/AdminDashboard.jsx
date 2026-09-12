@@ -21,38 +21,35 @@ function AdminDashboard({ user, onLogout }) {
     pendingAllocations: 0,
     approvedAllocations: 0,
   })
+  const [courses, setCourses] = useState([])
+  const [students, setStudents] = useState([])
   const [approvalRequests, setApprovalRequests] = useState([])
   const [courseForm, setCourseForm] = useState(initialCourseForm)
   const [loading, setLoading] = useState(true)
+  const [activeList, setActiveList] = useState(null)
 
   useEffect(() => {
     const fetchAdminData = async () => {
       try {
         const token = localStorage.getItem('courseAllocationToken')
-        const [dashboardResponse, allocationsResponse] = await Promise.all([
-          fetch(`${API_BASE_URL}/api/dashboard/admin`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }),
-          fetch(`${API_BASE_URL}/api/allocations/all`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }),
-        ])
+        const dashboardResponse = await fetch(`${API_BASE_URL}/api/dashboard/admin`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
 
         const dashboardData = await dashboardResponse.json()
-        const allocationsData = await allocationsResponse.json()
 
         if (!dashboardResponse.ok) {
           throw new Error(dashboardData.message || 'Failed to load admin dashboard.')
         }
 
         setSummary(dashboardData.summary)
+        setCourses(Array.isArray(dashboardData.courses) ? dashboardData.courses : [])
+        setStudents(Array.isArray(dashboardData.students) ? dashboardData.students : [])
         setApprovalRequests(
-          Array.isArray(allocationsData)
-            ? allocationsData.filter((item) => item.status === 'pending')
+          Array.isArray(dashboardData.pendingRequests)
+            ? dashboardData.pendingRequests
             : []
         )
       } catch (error) {
@@ -131,9 +128,9 @@ function AdminDashboard({ user, onLogout }) {
   }
 
   const stats = [
-    { label: 'Courses', value: String(summary.courseCount) },
-    { label: 'Students', value: String(summary.studentCount) },
-    { label: 'Pending Requests', value: String(summary.pendingAllocations) },
+    { label: 'Courses', value: String(summary.courseCount), onClick: () => setActiveList('courses') },
+    { label: 'Students', value: String(summary.studentCount), onClick: () => setActiveList('students') },
+    { label: 'Pending Requests', value: String(summary.pendingAllocations), onClick: () => setActiveList('pending') },
   ]
 
   const summaries = [
@@ -144,6 +141,100 @@ function AdminDashboard({ user, onLogout }) {
 
   return (
     <DashboardLayout title="Admin Dashboard" userEmail={user.email} stats={stats} onLogout={onLogout}>
+      {activeList && (
+        <section className="content-grid detail-list-grid">
+          <div className="panel table-panel">
+            <div className="panel-header">
+              <h3>{activeList === 'courses' ? 'Course List' : activeList === 'students' ? 'Student List' : 'Pending Request List'}</h3>
+              <button type="button" className="action-button small" onClick={() => setActiveList(null)}>Close</button>
+            </div>
+
+            <div className="table-wrap">
+              {activeList === 'courses' && (
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Code</th>
+                      <th>Name</th>
+                      <th>Department</th>
+                      <th>Faculty</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {courses.length === 0 ? (
+                      <tr><td colSpan="5">No courses found.</td></tr>
+                    ) : (
+                      courses.map((course) => (
+                        <tr key={course._id}>
+                          <td>{course.code}</td>
+                          <td>{course.name}</td>
+                          <td>{course.department}</td>
+                          <td>{course.faculty || 'TBD'}</td>
+                          <td><span className="status-badge success">{course.status || 'open'}</span></td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              )}
+
+              {activeList === 'students' && (
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Role</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {students.length === 0 ? (
+                      <tr><td colSpan="3">No students found.</td></tr>
+                    ) : (
+                      students.map((student) => (
+                        <tr key={student._id}>
+                          <td>{student.name}</td>
+                          <td>{student.email}</td>
+                          <td>{student.role}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              )}
+
+              {activeList === 'pending' && (
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Course</th>
+                      <th>Student</th>
+                      <th>Faculty</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {approvalRequests.length === 0 ? (
+                      <tr><td colSpan="4">No pending approvals.</td></tr>
+                    ) : (
+                      approvalRequests.map((request) => (
+                        <tr key={request._id}>
+                          <td>{request.course?.name || 'N/A'}</td>
+                          <td>{request.student?.name || 'N/A'}</td>
+                          <td>{request.course?.faculty || request.faculty || 'TBD'}</td>
+                          <td><span className="status-badge pending">{request.status}</span></td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
       <section className="content-grid">
         <div className="panel table-panel">
           <div className="panel-header">

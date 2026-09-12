@@ -12,10 +12,16 @@ function DashboardLayout({ title, userEmail, stats, onLogout, children }) {
 
         <section className="stats-grid">
           {stats.map((stat) => (
-            <div key={stat.label} className="stat-card">
+            <button
+              key={stat.label}
+              type="button"
+              className="stat-card"
+              onClick={stat.onClick}
+              disabled={!stat.onClick}
+            >
               <span>{stat.label}</span>
               <strong>{stat.value}</strong>
-            </div>
+            </button>
           ))}
         </section>
 
