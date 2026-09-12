@@ -23,8 +23,8 @@ function AdminDashboard({ user, onLogout }) {
   })
   const [courses, setCourses] = useState([])
   const [students, setStudents] = useState([])
+  const [faculty, setFaculty] = useState([])
   const [approvalRequests, setApprovalRequests] = useState([])
-  const [courseForm, setCourseForm] = useState(initialCourseForm)
   const [loading, setLoading] = useState(true)
   const [activeList, setActiveList] = useState(null)
 
@@ -47,6 +47,7 @@ function AdminDashboard({ user, onLogout }) {
         setSummary(dashboardData.summary)
         setCourses(Array.isArray(dashboardData.courses) ? dashboardData.courses : [])
         setStudents(Array.isArray(dashboardData.students) ? dashboardData.students : [])
+        setFaculty(Array.isArray(dashboardData.faculty) ? dashboardData.faculty : [])
         setApprovalRequests(
           Array.isArray(dashboardData.pendingRequests)
             ? dashboardData.pendingRequests
@@ -89,48 +90,11 @@ function AdminDashboard({ user, onLogout }) {
     }
   }
 
-  const handleCourseChange = (event) => {
-    const { name, value } = event.target
-    setCourseForm((previous) => ({
-      ...previous,
-      [name]: name === 'credits' || name === 'capacity' ? Number(value) : value,
-    }))
-  }
-
-  const handleCourseSubmit = async (event) => {
-    event.preventDefault()
-
-    try {
-      const token = localStorage.getItem('courseAllocationToken')
-      const response = await fetch(`${API_BASE_URL}/api/courses`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(courseForm),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Course creation failed.')
-      }
-
-      setCourseForm(initialCourseForm)
-      setSummary((previous) => ({
-        ...previous,
-        courseCount: previous.courseCount + 1,
-      }))
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
   const stats = [
     { label: 'Courses', value: String(summary.courseCount), onClick: () => setActiveList('courses') },
     { label: 'Students', value: String(summary.studentCount), onClick: () => setActiveList('students') },
     { label: 'Pending Requests', value: String(summary.pendingAllocations), onClick: () => setActiveList('pending') },
+    { label: 'Faculty Details', value: String(summary.facultyCount), onClick: () => setActiveList('faculty') },
   ]
 
   const summaries = [
@@ -145,7 +109,7 @@ function AdminDashboard({ user, onLogout }) {
         <section className="content-grid detail-list-grid">
           <div className="panel table-panel">
             <div className="panel-header">
-              <h3>{activeList === 'courses' ? 'Course List' : activeList === 'students' ? 'Student List' : 'Pending Request List'}</h3>
+              <h3>{activeList === 'courses' ? 'Course List' : activeList === 'students' ? 'Student List' : activeList === 'faculty' ? 'Faculty Detail List' : 'Pending Request List'}</h3>
               <button type="button" className="action-button small" onClick={() => setActiveList(null)}>Close</button>
             </div>
 
@@ -197,6 +161,31 @@ function AdminDashboard({ user, onLogout }) {
                           <td>{student.name}</td>
                           <td>{student.email}</td>
                           <td>{student.role}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              )}
+
+              {activeList === 'faculty' && (
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Role</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {faculty.length === 0 ? (
+                      <tr><td colSpan="3">No faculty members found.</td></tr>
+                    ) : (
+                      faculty.map((member) => (
+                        <tr key={member._id}>
+                          <td>{member.name}</td>
+                          <td>{member.email}</td>
+                          <td>{member.role}</td>
                         </tr>
                       ))
                     )}
@@ -289,45 +278,6 @@ function AdminDashboard({ user, onLogout }) {
               </div>
             ))}
           </div>
-          <button type="button" className="action-button">Export final report</button>
-          <button type="button" className="action-button secondary">Send notification</button>
-        </div>
-      </section>
-
-      <section className="content-grid lower-grid">
-        <div className="panel side-panel">
-          <h3>Create Course</h3>
-          <form className="priority-form" onSubmit={handleCourseSubmit}>
-            <label>
-              <span>Course Code</span>
-              <input name="code" value={courseForm.code} onChange={handleCourseChange} placeholder="CS401" required />
-            </label>
-            <label>
-              <span>Course Name</span>
-              <input name="name" value={courseForm.name} onChange={handleCourseChange} placeholder="Machine Learning" required />
-            </label>
-            <label>
-              <span>Department</span>
-              <input name="department" value={courseForm.department} onChange={handleCourseChange} placeholder="Computer Science" required />
-            </label>
-            <label>
-              <span>Credits</span>
-              <input type="number" name="credits" min="1" max="6" value={courseForm.credits} onChange={handleCourseChange} />
-            </label>
-            <label>
-              <span>Capacity</span>
-              <input type="number" name="capacity" min="10" max="200" value={courseForm.capacity} onChange={handleCourseChange} />
-            </label>
-            <label>
-              <span>Faculty</span>
-              <input name="faculty" value={courseForm.faculty} onChange={handleCourseChange} />
-            </label>
-            <label>
-              <span>Description</span>
-              <textarea name="description" value={courseForm.description} onChange={handleCourseChange} rows="3" />
-            </label>
-            <button type="submit" className="action-button">Create Course</button>
-          </form>
         </div>
       </section>
     </DashboardLayout>
