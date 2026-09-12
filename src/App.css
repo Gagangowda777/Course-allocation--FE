@@ -5,17 +5,20 @@
   justify-content: center;
   padding: 32px 20px;
   background: linear-gradient(135deg, #edf4ff 0%, #dbeafe 35%, #eef2ff 100%);
+  overflow-x: hidden;
 }
 
 .login-shell {
   width: min(100%, 980px);
+  max-width: 100%;
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: 28px;
   overflow: hidden;
   box-shadow: 0 30px 70px rgba(30, 41, 59, 0.12);
   display: grid;
-  grid-template-columns: 1.1fr 1.2fr;
+  grid-template-columns: minmax(320px, 1.1fr) minmax(410px, 1.2fr);
+  box-sizing: border-box;
 }
 
 .brand-panel {
@@ -255,15 +258,18 @@
   justify-content: center;
   padding: 32px 20px;
   background: linear-gradient(135deg, #edf4ff 0%, #dbeafe 35%, #eef2ff 100%);
+  overflow-x: hidden;
 }
 
 .auth-card {
   width: min(100%, 480px);
+  max-width: 100%;
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid rgba(148, 163, 184, 0.25);
   border-radius: 24px;
   padding: 32px;
   box-shadow: 0 30px 60px rgba(15, 23, 42, 0.08);
+  box-sizing: border-box;
 }
 
 .auth-header {
